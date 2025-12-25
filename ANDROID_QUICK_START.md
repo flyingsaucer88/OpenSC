@@ -6,15 +6,20 @@
 # 1. Set NDK path
 export ANDROID_NDK_ROOT=/path/to/android-ndk
 
-# 2. Build libusb for all Android architectures
+# 2. Build OpenSSL for all Android architectures (optional but recommended)
+./build-openssl-android.sh all
+
+# 3. Build libusb for all Android architectures
 ./build-libusb-android.sh all
 
-# 3. Build OpenSC for all Android architectures
+# 4. Build OpenSC for all Android architectures
 ./build-opensc-android.sh all
 
-# 4. Find your compiled libraries
+# 5. Find your compiled libraries
 ls build-android/opensc-install/arm64-v8a/lib/
 ```
+
+**Note:** OpenSSL is optional but highly recommended for full cryptographic functionality.
 
 ## What You Get
 
@@ -22,6 +27,15 @@ After successful build, you'll have:
 
 ```
 build-android/
+├── openssl-install/            # OpenSSL libraries (optional)
+│   ├── arm64-v8a/
+│   │   ├── lib/libcrypto.so
+│   │   ├── lib/libssl.so
+│   │   └── include/openssl/
+│   ├── armeabi-v7a/
+│   ├── x86_64/
+│   └── x86/
+│
 ├── install/                    # libusb libraries
 │   ├── arm64-v8a/
 │   │   ├── lib/libusb-1.0.{a,so}
@@ -55,6 +69,7 @@ If you only need one architecture (e.g., for testing):
 
 ```bash
 # Build for 64-bit ARM (most common)
+./build-openssl-android.sh arm64-v8a    # Optional but recommended
 ./build-libusb-android.sh arm64-v8a
 ./build-opensc-android.sh arm64-v8a
 ```

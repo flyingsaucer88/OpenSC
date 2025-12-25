@@ -334,6 +334,57 @@ export ANDROID_NDK_ROOT=/path/to/ndk
 6. **Healthcare** - Medical professional cards
 7. **NFC Card Reading** - Read contactless cards with NFC readers
 
+## 📝 PDF Digital Signature Tool
+
+A complete **PDF signing solution** is included that uses your OpenSC Android middleware with Apache PDFBox to sign PDFs using physical hardware tokens.
+
+### Features
+✅ **Desktop & Android** - Full implementations for both platforms
+✅ **Hardware Token Support** - YubiKey, Nitrokey, CAC, PIV, eToken, etc.
+✅ **PKCS#11 Integration** - Uses OpenSC PKCS#11 middleware
+✅ **Adobe-Compatible** - Industry-standard PKCS#7 detached signatures
+✅ **USB OTG on Android** - Sign PDFs on mobile with USB smart card readers
+
+### Location
+All PDF signer code is in the [`pdf-signer/`](pdf-signer/) directory:
+
+```
+pdf-signer/
+├── README.md                   # Complete PDF signer documentation
+├── QUICK_START.md              # 5-minute quick start guide
+├── PDF_SIGNER_SUMMARY.md       # Technical deep-dive
+├── desktop/                    # Desktop Java implementation
+│   ├── PKCS11PDFSigner.java    # Main desktop signer
+│   └── pom.xml                 # Maven build
+└── android/                    # Android implementation
+    ├── AndroidPDFSigner.java   # Android signer (uses OpenSCBridge)
+    └── PDFSignerActivity.java  # Example Activity
+```
+
+### Quick Start - Desktop
+
+```bash
+cd pdf-signer/desktop
+mvn clean package
+
+java -jar target/pkcs11-pdf-signer-1.0.0-jar-with-dependencies.jar \
+    ../opensc-pkcs11.cfg 1234 document.pdf signed.pdf "John Doe" "Office" "Approved"
+```
+
+### Quick Start - Android
+
+```java
+AndroidPDFSigner signer = new AndroidPDFSigner(context);
+signer.initialize(usbDevice, "1234");
+signer.signPDF(inputFile, outputFile, "John Doe", "Android", "Approved");
+signer.cleanup();
+```
+
+### Documentation
+- **Complete Guide:** [pdf-signer/README.md](pdf-signer/README.md)
+- **Quick Start:** [pdf-signer/QUICK_START.md](pdf-signer/QUICK_START.md)
+- **Technical Details:** [pdf-signer/PDF_SIGNER_SUMMARY.md](pdf-signer/PDF_SIGNER_SUMMARY.md)
+
 ## 📄 License
 
 - **OpenSC:** LGPL 2.1+
