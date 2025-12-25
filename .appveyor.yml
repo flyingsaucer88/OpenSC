@@ -7,6 +7,32 @@ branches:
   only:
    - 0.24.0-rc1-5c1f08d
 
+# Skip builds for commits that only modify files not relevant to Windows
+skip_commits:
+  files:
+    # Android-specific files
+    - build-openssl-android.sh
+    - build-libusb-android.sh
+    - build-opensc-android.sh
+    - build-all-android.sh
+    - clean-android-build.sh
+    - ANDROID_COMPLETE_GUIDE.md
+    - android/**/*
+    - pdf-signer/**/*
+    # Linux/macOS-specific files
+    - .github/workflows/linux.yml
+    - .github/workflows/macos.yml
+    - .github/workflows/fedora.yml
+    - containers/**/*
+    # Documentation only changes (unless it's Windows-related)
+    - '**/*.md'
+    - .github/ISSUE_TEMPLATE.md
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - CONTRIBUTING.md
+    - SECURITY.md
+  # But DO build if these files are modified
+  message: /\[build windows\]/
+
 platform:
   - x86
   - x64
