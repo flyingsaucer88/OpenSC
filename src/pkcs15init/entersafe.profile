@@ -9,15 +9,6 @@ cardinfo {
 	pin-pad-char	= 0x00;
 }
 
-pkcs15 {
-    # Put certificates into the CDF itself?
-    direct-certificates	= no;
-    # Put the DF length into the ODF file?
-    encode-df-length	= no;
-    # Have a lastUpdate field in the EF(TokenInfo)?
-    do-last-update	= yes;
-}
-
 option default {
 	macros {
 		pin-flags		 = local, initialized, needs-padding;
