@@ -348,8 +348,13 @@ reader_count=""
 for rdriver in "${enable_pcsc}" "${enable_cryptotokenkit}" "${enable_openct}" "${enable_ctapi}"; do
 	test "${rdriver}" = "yes" && reader_count="${reader_count}x"
 done
-if test "${reader_count}" != "x"; then
+if test "${reader_count}" != "x" -a "${reader_count}" != ""; then
 	AC_MSG_ERROR([Only one of --enable-pcsc, --enable-cryptotokenkit, --enable-openct, --enable-ctapi can be specified!])
+fi
+dnl Allow builds with no reader driver (e.g., Android with libusb/CCID)
+if test -z "${reader_count}"; then
+	AC_MSG_WARN([No reader driver enabled. Building without PC/SC, CryptoTokenKit, OpenCT, or CT-API support.])
+	AC_MSG_WARN([This configuration is suitable for Android builds using libusb/CCID directly.])
 fi
 
 dnl Checks for programs.

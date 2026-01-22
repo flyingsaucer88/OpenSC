@@ -174,6 +174,9 @@ build_for_abi() {
     export PKG_CONFIG_LIBDIR="${PKG_CONFIG_PATH}"
 
     # Run configure
+    # Note: We disable all traditional reader drivers (pcsc, cryptotokenkit, ctapi, openct)
+    # because Android uses libusb directly for CCID communication.
+    # The configure.ac has been modified to allow this configuration.
     echo "Configuring OpenSC for ${ABI}..."
     "${SCRIPT_DIR}/configure" \
         --host="${TARGET}" \
@@ -189,8 +192,12 @@ build_for_abi() {
         --disable-man \
         --disable-doc \
         --disable-tests \
+        --disable-strict \
+        --disable-pedantic \
         ${OPENSSL_CONFIGURE_FLAGS} \
-        --with-completiondir="${ABI_INSTALL_DIR}/etc/bash_completion.d"
+        --with-completiondir="${ABI_INSTALL_DIR}/etc/bash_completion.d" \
+        LIBUSB_CFLAGS="-I${LIBUSB_ABI_PREFIX}/include/libusb-1.0" \
+        LIBUSB_LIBS="-L${LIBUSB_ABI_PREFIX}/lib -lusb-1.0"
 
     # Build
     echo "Building OpenSC for ${ABI}..."

@@ -765,6 +765,10 @@ int sc_ctx_detect_readers(sc_context_t *ctx)
 	int r = 0;
 	const struct sc_reader_driver *drv = ctx->reader_driver;
 
+	/* No reader driver available (e.g., Android build) */
+	if (drv == NULL)
+		return SC_SUCCESS;
+
 	sc_mutex_lock(ctx, ctx->mutex);
 
 	if (drv->ops->detect_readers != NULL)
@@ -988,13 +992,19 @@ int sc_context_create(sc_context_t **ctx_out, const sc_context_param_t *parm)
 	ctx->reader_driver = sc_get_ctapi_driver();
 #elif defined(ENABLE_OPENCT)
 	ctx->reader_driver = sc_get_openct_driver();
+#else
+	/* No reader driver compiled in (e.g., Android build with libusb/CCID) */
+	ctx->reader_driver = NULL;
 #endif
 
-	r = ctx->reader_driver->ops->init(ctx);
-	if (r != SC_SUCCESS)   {
-		del_drvs(&opts);
-		sc_release_context(ctx);
-		return r;
+	/* Initialize reader driver if one is available */
+	if (ctx->reader_driver != NULL) {
+		r = ctx->reader_driver->ops->init(ctx);
+		if (r != SC_SUCCESS)   {
+			del_drvs(&opts);
+			sc_release_context(ctx);
+			return r;
+		}
 	}
 
 	driver = getenv("OPENSC_DRIVER");
@@ -1019,6 +1029,8 @@ int sc_context_create(sc_context_t **ctx_out, const sc_context_param_t *parm)
 int sc_ctx_use_reader(sc_context_t *ctx, void *pcsc_context_handle, void *pcsc_card_handle)
 {
 	LOG_FUNC_CALLED(ctx);
+	if (ctx->reader_driver == NULL)
+		return SC_ERROR_NOT_SUPPORTED;
 	if (ctx->reader_driver->ops->use_reader != NULL)
 		return ctx->reader_driver->ops->use_reader(ctx, pcsc_context_handle, pcsc_card_handle);
 
@@ -1029,6 +1041,8 @@ int sc_ctx_use_reader(sc_context_t *ctx, void *pcsc_context_handle, void *pcsc_c
 int sc_cancel(sc_context_t *ctx)
 {
 	LOG_FUNC_CALLED(ctx);
+	if (ctx->reader_driver == NULL)
+		return SC_ERROR_NOT_SUPPORTED;
 	if (ctx->reader_driver->ops->cancel != NULL)
 		return ctx->reader_driver->ops->cancel(ctx);
 
@@ -1039,6 +1053,8 @@ int sc_cancel(sc_context_t *ctx)
 int sc_wait_for_event(sc_context_t *ctx, unsigned int event_mask, sc_reader_t **event_reader, unsigned int *event, int timeout, void **reader_states)
 {
 	LOG_FUNC_CALLED(ctx);
+	if (ctx->reader_driver == NULL)
+		return SC_ERROR_NOT_SUPPORTED;
 	if (ctx->reader_driver->ops->wait_for_event != NULL)
 		return ctx->reader_driver->ops->wait_for_event(ctx, event_mask, event_reader, event, timeout, reader_states);
 
@@ -1058,7 +1074,7 @@ int sc_release_context(sc_context_t *ctx)
 		_sc_delete_reader(ctx, rdr);
 	}
 
-	if (ctx->reader_driver->ops->finish != NULL)
+	if (ctx->reader_driver != NULL && ctx->reader_driver->ops->finish != NULL)
 		ctx->reader_driver->ops->finish(ctx);
 
 	for (i = 0; ctx->card_drivers[i]; i++) {
