@@ -384,7 +384,7 @@ sc_pkcs15init_bind(struct sc_card *card, const char *name, const char *profile_o
 			break;
 		}
 
-		r = sc_profile_load(profile, "ambimat");
+		r = sc_profile_load(profile, card_profile);
 		if (r < 0)   {
 			sc_log(ctx, "Failed to load profile '%s': %s", card_profile, sc_strerror(r));
 			break;
