@@ -544,6 +544,9 @@ static const struct sc_atr_table piv_atrs[] = {
 	{ "3b:d6:96:00:81:b1:fe:45:1f:87:80:31:c1:52:41:1a:2a", NULL, NULL, SC_CARD_TYPE_PIV_II_800_73_4, 0, NULL },
 	{ "3b:86:80:01:80:31:c1:52:41:12:76", NULL, NULL, SC_CARD_TYPE_PIV_II_800_73_4, 0, NULL }, /* contactless */
 
+	/* AmbiSecure/SecureDS PIV */
+	{ "3b:d5:18:ff:81:b1:fe:45:1f:c3:80:73:c8:21:10:6f", NULL, NULL, SC_CARD_TYPE_PIV_II_GENERIC, 0, NULL },
+
 	{ NULL, NULL, NULL, 0, 0, NULL }
 };
 

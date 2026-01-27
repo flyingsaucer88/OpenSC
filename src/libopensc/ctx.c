@@ -117,6 +117,7 @@ static const struct _sc_driver_entry internal_card_drivers[] = {
 	{ "iasecc",	(void *(*)(void)) sc_get_iasecc_driver },
 #endif
 	{ "belpic",	(void *(*)(void)) sc_get_belpic_driver },*/
+	{ "PIV-II",	(void *(*)(void)) sc_get_piv_driver },
 #ifdef ENABLE_OPENSSL
 	{ "entersafe",(void *(*)(void)) sc_get_entersafe_driver },
 #ifdef ENABLE_SM
@@ -146,7 +147,6 @@ static const struct _sc_driver_entry internal_card_drivers[] = {
 	//{ "sc-hsm",	(void *(*)(void)) sc_get_sc_hsm_driver },
 	//{ "mcrd",	(void *(*)(void)) sc_get_mcrd_driver },
 	//{ "setcos",	(void *(*)(void)) sc_get_setcos_driver },
-	//{ "PIV-II",	(void *(*)(void)) sc_get_piv_driver },
 	//{ "cac",	(void *(*)(void)) sc_get_cac_driver },
 	//{ "itacns",	(void *(*)(void)) sc_get_itacns_driver },
 	//{ "isoApplet",	(void *(*)(void)) sc_get_isoApplet_driver },
