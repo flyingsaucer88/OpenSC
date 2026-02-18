@@ -358,8 +358,16 @@ int sc_ctx_log_to_file(sc_context_t *ctx, const char* filename)
 		ctx->debug_file = stderr;
 	else {
 		ctx->debug_file = fopen(filename, "a");
-		if (ctx->debug_file == NULL)
+		if (ctx->debug_file == NULL) {
+			/* Fail-safe: never leave debug_file NULL.  A NULL pointer
+			 * silently suppresses all subsequent log output (log.c).
+			 * Falling back to stderr is always safe; on Windows GUI
+			 * processes stderr is a no-op but the OutputDebugStringA
+			 * call in load_parameters makes the failure visible in
+			 * DebugView / debugger output. */
+			ctx->debug_file = stderr;
 			return SC_ERROR_INTERNAL;
+		}
 	}
 	return SC_SUCCESS;
 }
@@ -405,7 +413,27 @@ load_parameters(sc_context_t *ctx, scconf_block *block, struct _sc_ctx_options *
 		if (0 < expanded_len && expanded_len < sizeof expanded_val)
 			val = expanded_val;
 #endif
-		sc_ctx_log_to_file(ctx, val);
+		if (sc_ctx_log_to_file(ctx, val) != SC_SUCCESS) {
+			/* fopen of the configured debug_file failed; sc_ctx_log_to_file
+			 * has already fallen back to stderr so logging continues.
+			 * Emit a warning through every channel available on this platform
+			 * so the misconfiguration is visible regardless of whether the
+			 * calling process has a console (GUI apps, service hosts, etc.). */
+			fprintf(stderr, "opensc: WARNING: cannot open debug_file '%s',"
+					" falling back to stderr\n", val);
+#ifdef _WIN32
+			/* OutputDebugStringA is visible in Sysinternals DebugView and
+			 * any attached debugger even when the process has no console.
+			 * windows.h is already included at the top of this file. */
+			{
+				char warn_msg[PATH_MAX + 64];
+				snprintf(warn_msg, sizeof(warn_msg),
+						"OpenSC: cannot open debug_file '%s',"
+						" falling back to stderr", val);
+				OutputDebugStringA(warn_msg);
+			}
+#endif
+		}
 	}
 	else if (ctx->debug)   {
 		sc_ctx_log_to_file(ctx, NULL);
